@@ -1,9 +1,32 @@
-apply plugin: 'com.android.application'
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        // this plugin
+        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.10'
+        //classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
+        // add additional dependencies here if you wish to reference instead of generate them (see example directory)
+    }
+}
+
 apply plugin: 'jsonschema2pojo'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
+
+    packagingOptions {
+        exclude 'NOTICE'
+        exclude 'NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/ASL2.0'
+    }
 
     defaultConfig {
         applicationId "com.azavea.prs.driver"
@@ -20,18 +43,6 @@ android {
     }
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        // this plugin
-        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
-        // add additional dependencies here if you wish to reference instead of generate them (see example directory)
-    }
-}
-
 repositories {
     mavenCentral()
 }
@@ -40,21 +51,25 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
 
-    // jsonschema2pojo
-    // Required if generating equals, hashCode, or toString methods
-    
-
     // TODO: use any of these?
     // Required if generating JSR-303 annotations
-    //compile 'javax.validation:validation-api:1.1.0.CR2'
+    compile 'javax.validation:validation-api:1.1.0.CR2'
     // Required if generating Jackson 2 annotations
-    //compile 'com.fasterxml.jackson.core:jackson-databind:2.1.4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.4'
     // Required if generating JodaTime data types
     //compile 'joda-time:joda-time:2.2'
+
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.code.gson:gson:2.4'
+    // Required if generating equals, hashCode, or toString methods
     compile 'commons-lang:commons-lang:2.6'
+
+    // TODO: why is this missing?
+    compile 'javax.annotation:javax.annotation-api:1.2'
+
     compile 'com.android.support:design:23.1.1'
+
+    compile 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.10'
 }
 
 // Each configuration is set to the default value
@@ -74,11 +89,12 @@ jsonSchema2Pojo {
 
     // Target directory for generated Java source files. The plugin will add this directory to the
     // java source set so the compiler will find and compile the newly generated source files.
-    targetDirectory = file("${project.buildDir}/generated-sources/js2p")
+    //targetDirectory = file("${project.buildDir}/generated-sources/js2p")
+    targetDirectory = file("${project.buildDir}/generated/source/js2p")
 
     // Package name used for generated Java classes (for types where a fully qualified name has not
     // been supplied in the schema using the 'javaType' property).
-    targetPackage = ''
+    targetPackage = 'com.azavea.prs.driver.schemas'
 
     // The characters that should be considered as word delimiters when creating Java Bean property
     // names from JSON property names. If blank or not set, JSON properties will be considered to
@@ -151,7 +167,7 @@ jsonSchema2Pojo {
     initializeCollections = true
 
     // **EXPERIMENTAL** Whether to make the generated types Parcelable for Android
-    parcelable = false
+    // parcelable = false
 }
 
 
