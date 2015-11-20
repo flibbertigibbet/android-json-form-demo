@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
+import com.azavea.prs.driver.schemas.DriverSchema;
 import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JCodeModel;
 
@@ -23,7 +24,9 @@ import com.azavea.prs.driver.schemas.*;
 public class MainActivity extends AppCompatActivity {
 
 
-    ExampleSchema mySchema;
+    //ExampleSchema mySchema;
+
+    DriverSchema driverSchema;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

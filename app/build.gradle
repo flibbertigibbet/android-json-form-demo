@@ -1,14 +1,24 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven { url "https://jitpack.io" }
     }
 
     dependencies {
         // this plugin
-        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.10'
-        //classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
+        //classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.10'
+        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
+        //classpath 'com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-gingerbread'
+        //classpath 'com.github.flibbertigibbet.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16-gingerbread'
         // add additional dependencies here if you wish to reference instead of generate them (see example directory)
     }
+}
+
+configurations {
+    all*.exclude group: 'commons-logging', module: 'commons-logging'
+    all*.exclude group: 'ant', module: 'ant'
+    all*.exclude group: 'awtui', module: 'awtui'
+    all*.exclude group: 'swingui', module: 'swingui'
 }
 
 apply plugin: 'jsonschema2pojo'
@@ -17,7 +27,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
+    //useLibrary 'org.apache.http.legacy' // TODO: does this actually help?
 
+    // UGH
     packagingOptions {
         exclude 'NOTICE'
         exclude 'NOTICE.txt'
@@ -26,6 +38,11 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/maven/commons-io/commons-io/pom.properties'
+        exclude 'META-INF/maven/commons-io/commons-io/pom.xml'
+        exclude 'META-INF/plexus/components.xml'
     }
 
     defaultConfig {
@@ -34,42 +51,72 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        // TODO: figure out dependencies
+        //multiDexEnabled true
     }
     buildTypes {
-        release {
-            minifyEnabled false
+        debug {
+            debuggable true
+            minifyEnabled true
+            //shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "3072M"
     }
 }
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
+
+    configurations {
+        all*.exclude group: 'junit', module: 'junit'
+    }
+
+    // TODO: had to change
+    //testCompile ('junit:junit:3.8.1') {
+    //    exclude group: 'junit', module: 'junit'
+    //}
+
+    // necessary without proguard shrinking, but will crash at launch < SDK 14 (see multidex docs)
+    //compile 'com.android.support:multidex:1.0.1'
+
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+
+    //compile 'com.google.code.gson:gson:2.4' // included by dependency
 
     // TODO: use any of these?
     // Required if generating JSR-303 annotations
-    compile 'javax.validation:validation-api:1.1.0.CR2'
+    compile 'javax.validation:validation-api:1.1.0.Final'
+
     // Required if generating Jackson 2 annotations
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.1.4'
+    //compile 'com.fasterxml.jackson.core:jackson-databind:2.2.0' {
+    //    exclude group: 'commons-logging', module: 'commons-logging'
+    //}
     // Required if generating JodaTime data types
     //compile 'joda-time:joda-time:2.2'
 
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.google.code.gson:gson:2.4'
     // Required if generating equals, hashCode, or toString methods
     compile 'commons-lang:commons-lang:2.6'
 
     // TODO: why is this missing?
     compile 'javax.annotation:javax.annotation-api:1.2'
 
-    compile 'com.android.support:design:23.1.1'
-
-    compile 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.10'
+    compile 'com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-gingerbread'
 }
 
 // Each configuration is set to the default value
@@ -99,7 +146,7 @@ jsonSchema2Pojo {
     // The characters that should be considered as word delimiters when creating Java Bean property
     // names from JSON property names. If blank or not set, JSON properties will be considered to
     // contain a single word when creating Java Bean property names.
-    propertyWordDelimiters = [] as char[]
+    propertyWordDelimiters = [' '] as char[]
 
     // Whether to use the java type long (or Long) instead of int (or Integer) when representing the
     // JSON Schema type 'integer'.
@@ -138,7 +185,7 @@ jsonSchema2Pojo {
     //  - required = @NotNull
     // Any Java fields which are an object or array of objects will be annotated with @Valid to
     // support validation of an entire document tree.
-    includeJsr303Annotations = false
+    includeJsr303Annotations = true
 
     // The type of input documents that will be read. Supported values:
     //  - jsonschema (schema documents, containing formal rules that describe the structure of json data)
@@ -150,7 +197,7 @@ jsonSchema2Pojo {
     // that have been generated previously. <strong>Be warned</strong>, when activated this option
     // will cause jsonschema2pojo to <strong>indiscriminately delete the entire contents of the target
     // directory (all files and folders)</strong> before it begins generating sources.
-    removeOldOutput = false
+    removeOldOutput = true
 
     // The character encoding that should be used when writing the generated Java source files
     outputEncoding = 'UTF-8'
@@ -161,7 +208,7 @@ jsonSchema2Pojo {
 
     // Whether to use commons-lang 3.x imports instead of commons-lang 2.x imports when adding equals,
     // hashCode and toString methods.
-    useCommonsLang3 = false
+    useCommonsLang3 = true
 
     // Whether to initialize Set and List fields as empty collections, or leave them as null.
     initializeCollections = true
