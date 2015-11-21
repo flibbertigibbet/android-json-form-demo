@@ -16,7 +16,7 @@
 #   public *;
 #}
 
--optimizationpasses 1
+-optimizationpasses 5
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
@@ -36,7 +36,7 @@
 
 -allowaccessmodification
 -renamesourcefileattribute SourceFile
-#-repackageclasses ''
+-repackageclasses ''
 -keepparameternames
 
 -keep public class * extends android.app.Activity
@@ -48,10 +48,6 @@
 -keep public class * extends android.preference.Preference
 
 -keep public interface com.android.vending.licensing.ILicensingService
-
--keep public class * {
-    public protected *;
-}
 
 -keepclassmembernames class * {
     java.lang.Class class$(java.lang.String);
@@ -85,17 +81,10 @@
 
 -keepclasseswithmembernames class * {
     public <init>(android.content.Context, android.util.AttributeSet);
-}
-
--keepclasseswithmembernames class * {
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
 
 #################
-
-#-dontwarn android.support.**
-#-dontwarn javax.swing.**
-#-dontwarn java.awt.**
 
 -keep class com.azavea.prs.** { *; }
 
@@ -105,15 +94,6 @@
 -dontwarn com.google.common.**
 -dontwarn sun.nio.cs.**
 -dontwarn javax.lang.model.**
-
--keep class org.w3c.dom.** { *; }
--keep class javax.lang.model.** { *; }
--keep class com.google.common.collect.** { *; }
--keep class sun.misc.** { *; }
--keep class sun.nio.cs.** { *; }
--keep class android.graphics.** { *; }
--keep class libcore.icu.** { *; }
--keep class org.joda.convert.** { *; }
 
 -keep, includedescriptorclasses class *.** {
     public protected <fields>;
