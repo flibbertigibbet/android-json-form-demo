@@ -28,11 +28,16 @@
 -printmapping mapping.txt
 -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 
--keepattributes EnclosingMethod,Signature,*Annotation*,SourceFile,LineNumberTable,Exceptions,InnerClasses
+-keepattributes EnclosingMethod,Signature,*Annotation*,SourceFile,LineNumberTable,Exceptions,InnerClasses,Deprecated
+
+# http://proguard.sourceforge.net/manual/examples.html#beans
+-adaptresourcefilenames    **.properties,**.gif,**.jpg
+-adaptresourcefilecontents **.properties,META-INF/MANIFEST.MF
 
 -allowaccessmodification
 -renamesourcefileattribute SourceFile
--repackageclasses ''
+#-repackageclasses ''
+-keepparameternames
 
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application
@@ -41,8 +46,26 @@
 -keep public class * extends android.content.ContentProvider
 -keep public class * extends android.app.backup.BackupAgentHelper
 -keep public class * extends android.preference.Preference
--keep public class com.android.vending.licensing.ILicensingService
--dontnote com.android.vending.licensing.ILicensingService
+
+-keep public interface com.android.vending.licensing.ILicensingService
+
+-keep public class * {
+    public protected *;
+}
+
+-keepclassmembernames class * {
+    java.lang.Class class$(java.lang.String);
+    java.lang.Class class$(java.lang.String, boolean);
+}
+
+-keepclasseswithmembernames,includedescriptorclasses class * {
+    native <methods>;
+}
+
+-keepclassmembers,allowoptimization enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
 
 # Explicitly preserve all serialization members. The Serializable interface
 # is only a marker interface, so it wouldn't save them.
@@ -70,63 +93,75 @@
 
 #################
 
+#-dontwarn android.support.**
+#-dontwarn javax.swing.**
 #-dontwarn java.awt.**
-
--dontwarn org.codehaus.plexus.**
--dontwarn org.jsonschema2pojo.gradle.**
--dontwarn com.fasterxml.jackson.databind.ext.**
--dontwarn com.sun.codemodel.util.**
--dontwarn edu.emory.mathcs.backport.**
--dontwarn org.joda.time.**
--dontwarn org.apache.maven.shared.utils.**
--dontwarn org.codehaus.jackson.map.**
--dontwarn org.jsonschema2pojo.util.NameHelper
 
 -keep class com.azavea.prs.** { *; }
 
--keep public class org.codehaus.** { *; }
--keep interface org.codehaus.** { *; }
--keep class hidden.org.codehaus.plexus.interpolation.** { *; }
--keep interface hidden.org.codehaus.plexus.interpolation.** { *; }
+-keepnames class org.codehaus.jackson.** { *; }
 
--keep class groovy.lang.** { public *; }
--keep interface groovy.lang.** { publci *; }
+-dontwarn org.w3c.dom.**
+-dontwarn com.google.common.**
+-dontwarn sun.nio.cs.**
+-dontwarn javax.lang.model.**
 
--keep class org.gradle.api.** { public *; }
--keep interface org.gradle.api.** { public *; }
-
--keep class org.w3c.dom.** { public *; }
--keep class javax.lang.model.** { public *; }
--keep class java.beans.** { *; }
--keep class sun.nio.css.** { *; }
+-keep class org.w3c.dom.** { *; }
+-keep class javax.lang.model.** { *; }
+-keep class com.google.common.collect.** { *; }
 -keep class sun.misc.** { *; }
--keep class org.apache.maven.toolchain.** { public *; }
--keep class org.joda.convert.** { public *; }
--keep class org.codehaus.groovy.runtime.** { public *; }
--keep class java.rmi.** { public *; }
--keep class com.sun.tools.** { public *; }
--keep class sun.rmi.rmic.** { public *; }
--keep class weblogic.rmic.** { public *; }
+-keep class sun.nio.cs.** { *; }
+-keep class android.graphics.** { *; }
+-keep class libcore.icu.** { *; }
+-keep class org.joda.convert.** { *; }
 
--keep public class java.awt.** { public *; }
--keep interface java.awt.** { *; }
--keep public class org.codehaus.** { public *; }
--keep interface org.codehaus.** { *; }
-
--keep class org.apache.tools.ant.** { public *; }
--keep class javax.activation.** { public *; }
--keep class javax.mail.internet.** { public *; }
--keep class java.nio.** { public *; }
--keep class gnu.gcj.** { public *; }
-
--keepclassmembers class *.* {
-    @org.codehaus.plexus.util.interpolation.** <methods>;
-    @hidden.org.codehaus.plexus.interpolation.** <methods>;
-}
-
--keep, includedescriptorclasses public class *.* {
+-keep, includedescriptorclasses class *.** {
     public protected <fields>;
     public protected <methods>;
     public protected *;
 }
 
+-keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
+    public static final *** NULL;
+}
+
+-keep interface * extends java.rmi.Remote {
+    <methods>;
+}
+
+-keep class * implements java.rmi.Remote {
+    <init>(java.rmi.activation.ActivationID, java.rmi.MarshalledObject);
+}
+
+-keepclassmembers class * {
+    @javax.annotation.Resource *;
+    @org.springframework.beans.factory.annotation.Autowired *;
+    @android.webkit.JavascriptInterface <methods>;
+    @org.codehaus.jackson.annotate.* <fields>;
+    @org.codehaus.jackson.annotate.* <init>(...);
+}
+
+-keep public class * extends android.view.View {
+    public <init>(android.content.Context);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+    public void set*(...);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers class * extends android.content.Context {
+   public void *(android.view.View);
+   public void *(android.view.MenuItem);
+}
+
+-keepclassmembers class * implements android.os.Parcelable {
+    static ** CREATOR;
+}
+
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}

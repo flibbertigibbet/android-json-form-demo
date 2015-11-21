@@ -6,11 +6,35 @@ buildscript {
 
     dependencies {
         // this plugin
-        //classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.10'
         classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
-        //classpath 'com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-gingerbread'
-        //classpath 'com.github.flibbertigibbet.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16-gingerbread'
         // add additional dependencies here if you wish to reference instead of generate them (see example directory)
+        classpath 'com.google.code.gson:gson:2.4'
+        classpath 'javax.annotation:javax.annotation-api:1.2'
+        classpath 'commons-lang:commons-lang:2.6'
+        classpath 'javax.validation:validation-api:1.1.0.Final'
+
+        classpath 'org.joda:joda-convert:1.8.1'
+        classpath 'com.google.code.findbugs:jsr305:3.0.1' // for annotations
+        classpath 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+
+        classpath 'javax.validation:validation-api:1.1.0.Final'
+
+        /*
+        classpath 'joda-time:joda-time:2.9.1'
+
+        classpath 'com.sun.codemodel:codemodel:2.6'
+        classpath 'com.google.code.javaparser:javaparser:1.0.11'
+        classpath 'org.apache.commons:commons-lang3:3.4'
+        classpath 'commons-codec:commons-codec:1.10'
+        classpath 'commons-io:commons-io:2.4'
+        */
+
+        // explicitly include for proguard
+        /*
+
+        // bean introspection support?
+        classpath 'com.madrobot:madrobotbeans:0.1'
+        */
     }
 }
 
@@ -97,26 +121,52 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
 
-    //compile 'com.google.code.gson:gson:2.4' // included by dependency
+    // used by jsonschema2pojo, also used directly
+    compile 'com.google.code.gson:gson:2.4'
 
-    // TODO: use any of these?
+    compile ('com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-gingerbread') {
+        // only want core
+        exclude module: 'jsonschema2pojo-ant'
+        exclude module: 'jsonschema2pojo-cli'
+        exclude module: 'jsonschema2pojo-maven-plugin'
+        exclude module: 'jsonschema2pojo-gradle-plugin'
+        exclude module: 'jsonschema2pojo-integration-tests'
+    }
+
+    // used by jsonschema2pojo
     // Required if generating JSR-303 annotations
     compile 'javax.validation:validation-api:1.1.0.Final'
-
-    // Required if generating Jackson 2 annotations
-    //compile 'com.fasterxml.jackson.core:jackson-databind:2.2.0' {
-    //    exclude group: 'commons-logging', module: 'commons-logging'
-    //}
-    // Required if generating JodaTime data types
-    //compile 'joda-time:joda-time:2.2'
-
     // Required if generating equals, hashCode, or toString methods
     compile 'commons-lang:commons-lang:2.6'
+    // Required if generating JodaTime data types
+    //compile 'joda-time:joda-time:2.9.1'
+    // Required if generating Jackson 2 annotations
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
 
-    // TODO: why is this missing?
+    // why was this missing? needed to compile with jsonschema2pojo
     compile 'javax.annotation:javax.annotation-api:1.2'
 
-    compile 'com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-gingerbread'
+    // explicitly include to make proguard less grumpy
+    compile 'org.joda:joda-convert:1.8.1' // needed whether joda-time used or not
+    compile 'com.google.code.findbugs:jsr305:3.0.1' // annotations
+
+    compile 'javax.validation:validation-api:1.1.0.Final'
+
+    /*
+    compile 'com.sun.codemodel:codemodel:2.6'
+    compile 'com.google.code.javaparser:javaparser:1.0.11'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'commons-codec:commons-codec:1.10'
+    compile 'commons-io:commons-io:2.4'
+    */
+
+    //use this?
+    //'org.hibernate:hibernate-validator:5.2.2.Final'
+
+    /*
+    // bean introspection support?
+    compile 'com.madrobot:madrobotbeans:0.1'
+    */
 }
 
 // Each configuration is set to the default value
@@ -146,7 +196,7 @@ jsonSchema2Pojo {
     // The characters that should be considered as word delimiters when creating Java Bean property
     // names from JSON property names. If blank or not set, JSON properties will be considered to
     // contain a single word when creating Java Bean property names.
-    propertyWordDelimiters = [' '] as char[]
+    propertyWordDelimiters = [' ','_'] as char[]
 
     // Whether to use the java type long (or Long) instead of int (or Integer) when representing the
     // JSON Schema type 'integer'.
