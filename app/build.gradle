@@ -1,9 +1,51 @@
-apply plugin: 'com.android.application'
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+
+    dependencies {
+        // this plugin
+        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
+        // add additional dependencies here if you wish to reference instead of generate them (see example directory)
+        classpath 'com.google.code.gson:gson:2.4'
+        classpath 'org.joda:joda-convert:1.8.1'
+        classpath 'javax.annotation:javax.annotation-api:1.2'
+        classpath 'com.google.code.findbugs:jsr305:3.0.1'
+
+    }
+}
+
+configurations {
+    all*.exclude group: 'commons-logging', module: 'commons-logging'
+    all*.exclude group: 'ant', module: 'ant'
+    all*.exclude group: 'awtui', module: 'awtui'
+    all*.exclude group: 'swingui', module: 'swingui'
+}
+
 apply plugin: 'jsonschema2pojo'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.1"
+    //useLibrary 'org.apache.http.legacy' // TODO: does this actually help?
+
+    // UGH
+    packagingOptions {
+        exclude 'NOTICE'
+        exclude 'NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/maven/commons-io/commons-io/pom.properties'
+        exclude 'META-INF/maven/commons-io/commons-io/pom.xml'
+        exclude 'META-INF/plexus/components.xml'
+    }
 
     defaultConfig {
         applicationId "com.azavea.prs.driver"
@@ -11,49 +53,85 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        // TODO: figure out dependencies
+        //multiDexEnabled true
     }
     buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-}
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        // this plugin
-        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
-        // add additional dependencies here if you wish to reference instead of generate them (see example directory)
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "3072M"
     }
 }
 
 repositories {
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.1.1'
 
+    configurations {
+        all*.exclude group: 'junit', module: 'junit'
+    }
+
+    // necessary without proguard shrinking, but may crash at launch < SDK 14 (see multidex docs)
+    //compile 'com.android.support:multidex:1.0.1'
+
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+
+    // used by jsonschema2pojo, also used directly
     compile 'com.google.code.gson:gson:2.4'
 
-    // jsonschema2pojo
-    // Required if generating equals, hashCode, or toString methods
-    compile 'commons-lang:commons-lang:2.6'
+    compile ('com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-gingerbread') {
+        // only want core
+        exclude module: 'jsonschema2pojo-ant'
+        exclude module: 'jsonschema2pojo-cli'
+        exclude module: 'jsonschema2pojo-maven-plugin'
+        exclude module: 'jsonschema2pojo-gradle-plugin'
+        exclude module: 'jsonschema2pojo-integration-tests'
+    }
 
-    // TODO: use any of these?
+    // used by jsonschema2pojo
     // Required if generating JSR-303 annotations
-    //compile 'javax.validation:validation-api:1.1.0.CR2'
-    // Required if generating Jackson 2 annotations
-    //compile 'com.fasterxml.jackson.core:jackson-databind:2.1.4'
+    compile 'javax.validation:validation-api:1.1.0.Final'
+    // Required if generating equals, hashCode, or toString methods
+    //compile 'commons-lang:commons-lang:2.6'
     // Required if generating JodaTime data types
-    //compile 'joda-time:joda-time:2.2'
+    //compile 'joda-time:joda-time:2.9.1'
+    // Required if generating Jackson 2 annotations
+    //compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+
+    // why was this missing? needed to compile with jsonschema2pojo
+    compile 'javax.annotation:javax.annotation-api:1.2'
+
+    // explicitly include to make proguard less grumpy
+    compile 'org.joda:joda-convert:1.8.1' // needed whether joda-time used or not
+
+    compile 'com.google.code.findbugs:jsr305:3.0.1' // annotations
+
+    //use this?
+    //'org.hibernate:hibernate-validator:5.2.2.Final'
+
+    /*
+    // bean introspection support?
+    compile 'com.madrobot:madrobotbeans:0.1'
+    */
 }
 
 // Each configuration is set to the default value
@@ -68,21 +146,21 @@ jsonSchema2Pojo {
 
     // Location of the JSON Schema file(s). This may refer to a single file or a directory of files.
     //source = files("${sourceSets.main.output.resourcesDir}/json")
-    // TODO: move?
-    source = files("src/main/res/json/schemas")
+    source = files("src/main/assets/json/schemas")
 
     // Target directory for generated Java source files. The plugin will add this directory to the
     // java source set so the compiler will find and compile the newly generated source files.
-    targetDirectory = file("${project.buildDir}/generated-sources/js2p")
+    //targetDirectory = file("${project.buildDir}/generated-sources/js2p")
+    targetDirectory = file("${project.buildDir}/generated/source/js2p")
 
     // Package name used for generated Java classes (for types where a fully qualified name has not
     // been supplied in the schema using the 'javaType' property).
-    targetPackage = ''
+    targetPackage = 'com.azavea.prs.driver.schemas'
 
     // The characters that should be considered as word delimiters when creating Java Bean property
     // names from JSON property names. If blank or not set, JSON properties will be considered to
     // contain a single word when creating Java Bean property names.
-    propertyWordDelimiters = [] as char[]
+    propertyWordDelimiters = [' ','_'] as char[]
 
     // Whether to use the java type long (or Long) instead of int (or Integer) when representing the
     // JSON Schema type 'integer'.
@@ -93,7 +171,7 @@ jsonSchema2Pojo {
     useDoubleNumbers = true
 
     // Whether to include hashCode and equals methods in generated Java types.
-    includeHashcodeAndEquals = true
+    includeHashcodeAndEquals = false
 
     // Whether to include a toString method in generated Java types.
     includeToString = true
@@ -121,7 +199,7 @@ jsonSchema2Pojo {
     //  - required = @NotNull
     // Any Java fields which are an object or array of objects will be annotated with @Valid to
     // support validation of an entire document tree.
-    includeJsr303Annotations = false
+    includeJsr303Annotations = true
 
     // The type of input documents that will be read. Supported values:
     //  - jsonschema (schema documents, containing formal rules that describe the structure of json data)
@@ -133,7 +211,7 @@ jsonSchema2Pojo {
     // that have been generated previously. <strong>Be warned</strong>, when activated this option
     // will cause jsonschema2pojo to <strong>indiscriminately delete the entire contents of the target
     // directory (all files and folders)</strong> before it begins generating sources.
-    removeOldOutput = false
+    removeOldOutput = true
 
     // The character encoding that should be used when writing the generated Java source files
     outputEncoding = 'UTF-8'
@@ -150,7 +228,5 @@ jsonSchema2Pojo {
     initializeCollections = true
 
     // **EXPERIMENTAL** Whether to make the generated types Parcelable for Android
-    parcelable = false
+    // parcelable = false
 }
-
-
