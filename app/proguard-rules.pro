@@ -16,7 +16,7 @@
 #   public *;
 #}
 
--optimizationpasses 5
+-optimizationpasses 3
 -dontusemixedcaseclassnames
 -dontskipnonpubliclibraryclasses
 -dontskipnonpubliclibraryclassmembers
@@ -26,7 +26,6 @@
 -printseeds seeds.txt
 -printusage unused.txt
 -printmapping mapping.txt
--optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
 
 -keepattributes EnclosingMethod,Signature,*Annotation*,SourceFile,LineNumberTable,Exceptions,InnerClasses,Deprecated
 
@@ -37,81 +36,23 @@
 -allowaccessmodification
 -renamesourcefileattribute SourceFile
 -repackageclasses ''
--keepparameternames
-
--keep public class * extends android.app.Activity
--keep public class * extends android.app.Application
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
--keep public class * extends android.app.backup.BackupAgentHelper
--keep public class * extends android.preference.Preference
-
--keep public interface com.android.vending.licensing.ILicensingService
-
--keepclassmembernames class * {
-    java.lang.Class class$(java.lang.String);
-    java.lang.Class class$(java.lang.String, boolean);
-}
-
--keepclasseswithmembernames,includedescriptorclasses class * {
-    native <methods>;
-}
-
--keepclassmembers,allowoptimization enum * {
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
-
-# Explicitly preserve all serialization members. The Serializable interface
-# is only a marker interface, so it wouldn't save them.
--keepclassmembers class * implements java.io.Serializable {
-    static final long serialVersionUID;
-    private static final java.io.ObjectStreamField[] serialPersistentFields;
-    private void writeObject(java.io.ObjectOutputStream);
-    private void readObject(java.io.ObjectInputStream);
-    java.lang.Object writeReplace();
-    java.lang.Object readResolve();
-}
-
-# Preserve all native method names and the names of their classes.
--keepclasseswithmembernames class * {
-    native <methods>;
-}
-
--keepclasseswithmembernames class * {
-    public <init>(android.content.Context, android.util.AttributeSet);
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-}
-
-#################
 
 -keep class com.azavea.prs.** { *; }
 
--keepnames class org.codehaus.jackson.** { *; }
+# fix remaining warnings
+-keep class com.google.vending.licensing.ILicensingService { *; }
+-keep class org.w3c.dom.** { *; }
+-keep class sun.nio.cs.** { *; }
+-keep class javax.lang.model.** { *; }
+
+# warnings re: dynamic references
+-keep class libcore.icu.** { *; }
+-keep class android.graphics.** { *; }
 
 -dontwarn org.w3c.dom.**
--dontwarn com.google.common.**
 -dontwarn sun.nio.cs.**
 -dontwarn javax.lang.model.**
-
--keep, includedescriptorclasses class *.** {
-    public protected <fields>;
-    public protected <methods>;
-    public protected *;
-}
-
--keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
-    public static final *** NULL;
-}
-
--keep interface * extends java.rmi.Remote {
-    <methods>;
-}
-
--keep class * implements java.rmi.Remote {
-    <init>(java.rmi.activation.ActivationID, java.rmi.MarshalledObject);
-}
+#-dontwarn com.google.common.**
 
 -keepclassmembers class * {
     @javax.annotation.Resource *;
@@ -121,27 +62,60 @@
     @org.codehaus.jackson.annotate.* <init>(...);
 }
 
--keep public class * extends android.view.View {
+####################
+# below configurations based on:
+# https://github.com/krschultz/android-proguard-snippets
+
+## Joda Time 2.3
+
+-dontwarn org.joda.convert.**
+-dontwarn org.joda.time.**
+-keep class org.joda.time.** { *; }
+-keep interface org.joda.time.** { *; }
+
+## Joda Convert 1.6
+
+-keep class org.joda.convert.** { *; }
+-keep interface org.joda.convert.** { *; }
+
+# support design
+
+-dontwarn android.support.design.**
+-keep class android.support.design.** { *; }
+-keep interface android.support.design.** { *; }
+-keep public class android.support.design.R$* { *; }
+
+# app compat v7
+
+-keep public class android.support.v7.widget.** { *; }
+-keep public class android.support.v7.internal.widget.** { *; }
+-keep public class android.support.v7.internal.view.menu.** { *; }
+
+-keep public class * extends android.support.v4.view.ActionProvider {
     public <init>(android.content.Context);
-    public <init>(android.content.Context, android.util.AttributeSet);
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-    public void set*(...);
 }
 
--keepclasseswithmembers class * {
-    public <init>(android.content.Context, android.util.AttributeSet);
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-}
+## GSON 2.2.4 specific rules ##
 
--keepclassmembers class * extends android.content.Context {
-   public void *(android.view.View);
-   public void *(android.view.MenuItem);
-}
+# Gson uses generic type information stored in a class file when working with fields. Proguard
+# removes such information by default, so configure it to keep all of it.
+#-keepattributes Signature
 
--keepclassmembers class * implements android.os.Parcelable {
-    static ** CREATOR;
-}
+# For using GSON @Expose annotation
+#-keepattributes *Annotation*
 
--keepclassmembers class **.R$* {
-    public static <fields>;
+#-keepattributes EnclosingMethod
+
+# Gson specific classes
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+
+
+# Proguard configuration for Jackson 2.x (fasterxml package instead of codehaus package)
+-keep class com.fasterxml.jackson.databind.ObjectMapper {
+    public <methods>;
+    protected <methods>;
+}
+-keep class com.fasterxml.jackson.databind.ObjectWriter {
+    public ** writeValueAsString(**);
 }
