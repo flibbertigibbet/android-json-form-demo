@@ -86,10 +86,13 @@
 
 # support design
 
--dontwarn android.support.design.**
 -keep class android.support.design.** { *; }
 -keep interface android.support.design.** { *; }
 -keep public class android.support.design.R$* { *; }
+
+-keep public class * extends android.support.design.widget.** {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
 
 # app compat v7
 
