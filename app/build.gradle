@@ -6,12 +6,17 @@ buildscript {
 
     dependencies {
         // this plugin
-        classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
+        classpath 'com.github.flibbertigibbet.jsonschema2pojo:jsonschema2pojo-gradle-plugin:jsonschema2pojo-0.4.16-extra-annotations'
+        //classpath 'org.jsonschema2pojo:jsonschema2pojo-gradle-plugin:0.4.16'
         // add additional dependencies here if you wish to reference instead of generate them (see example directory)
         classpath 'com.google.code.gson:gson:2.4'
         classpath 'org.joda:joda-convert:1.8.1'
         classpath 'javax.annotation:javax.annotation-api:1.2'
         classpath 'com.google.code.findbugs:jsr305:3.0.1'
+
+        //optional
+        classpath 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+        classpath 'joda-time:joda-time:2.9.1'
 
     }
 }
@@ -98,7 +103,7 @@ dependencies {
     // used by jsonschema2pojo, also used directly
     compile 'com.google.code.gson:gson:2.4'
 
-    compile ('com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-gingerbread') {
+    compile ('com.github.flibbertigibbet:jsonschema2pojo:jsonschema2pojo-0.4.16-extra-annotations') {
         // only want core
         exclude module: 'jsonschema2pojo-ant'
         exclude module: 'jsonschema2pojo-cli'
@@ -111,11 +116,11 @@ dependencies {
     // Required if generating JSR-303 annotations
     compile 'javax.validation:validation-api:1.1.0.Final'
     // Required if generating equals, hashCode, or toString methods
-    //compile 'commons-lang:commons-lang:2.6'
+    compile 'commons-lang:commons-lang:2.6'
     // Required if generating JodaTime data types
-    //compile 'joda-time:joda-time:2.9.1'
+    compile 'joda-time:joda-time:2.9.1'
     // Required if generating Jackson 2 annotations
-    //compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
 
     // why was this missing? needed to compile with jsonschema2pojo
     compile 'javax.annotation:javax.annotation-api:1.2'
@@ -124,6 +129,7 @@ dependencies {
     compile 'org.joda:joda-convert:1.8.1' // needed whether joda-time used or not
 
     compile 'com.google.code.findbugs:jsr305:3.0.1' // annotations
+
 
     //use this?
     //'org.hibernate:hibernate-validator:5.2.2.Final'
@@ -171,7 +177,7 @@ jsonSchema2Pojo {
     useDoubleNumbers = true
 
     // Whether to include hashCode and equals methods in generated Java types.
-    includeHashcodeAndEquals = false
+    includeHashcodeAndEquals = true
 
     // Whether to include a toString method in generated Java types.
     includeToString = true
@@ -187,7 +193,10 @@ jsonSchema2Pojo {
     // A fully qualified class name, referring to a custom annotator class that implements
     // org.jsonschema2pojo.NoopAnnotator and will be used in addition to the one chosen
     // by annotationStyle. If you want to use the custom annotator alone, set annotationStyle to none.
-    customAnnotator = 'org.jsonschema2pojo.NoopAnnotator'
+    // customAnnotator = 'org.jsonschema2pojo.Jackson2Annotator'
+    //customAnnotator = 'org.jsonschema2pojo.NoopAnnotator'
+
+    customAnnotator = 'org.jsonschema2pojo.JsonEditorAnnotator'
 
     // Whether to include JSR-303/349 annotations (for schema rules like minimum, maximum, etc) in
     // generated Java types. Schema rules and the annotation they produce:

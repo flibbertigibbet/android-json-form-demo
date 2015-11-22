@@ -6,7 +6,7 @@
     "Person": {
       "multiple": true,
       "description": "A person involved in the accident",
-      "title": "Person",
+      "title": "Person (This is the title)",
       "required": [
         "_localId"
       ],
@@ -154,7 +154,7 @@
     "AccidentDetails": {
       "multiple": false,
       "description": "Details for Accident",
-      "title": "Accident Details",
+      "title": "Accident Details (Title)",
       "required": [
         "_localId"
       ],
@@ -298,7 +298,7 @@
     "Vehicle": {
       "multiple": true,
       "description": "A vehicle involved in the accident",
-      "title": "Vehicle",
+      "title": "Vehicle (Title)",
       "required": [
         "_localId"
       ],
@@ -464,16 +464,19 @@
       "items": {
         "$ref": "#/definitions/Person"
       },
-      "type": "array"
+      "type": "array",
+      "propertyOrder": 2
     },
     "Accident Details": {
-      "$ref": "#/definitions/AccidentDetails"
+      "$ref": "#/definitions/AccidentDetails",
+      "propertyOrder": 0
     },
     "Vehicle": {
       "items": {
         "$ref": "#/definitions/Vehicle"
       },
-      "type": "array"
+      "type": "array",
+      "propertyOrder": 1
     }
   }
 }

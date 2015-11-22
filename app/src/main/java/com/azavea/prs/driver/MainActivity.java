@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -81,22 +83,19 @@ public class MainActivity extends AppCompatActivity {
 
             AccidentDetails deets = record.getAccidentDetails();
 
+            String wat = gson.toJson(record, DriverSchema.class);
+            Log.d("MainActivity:loadRecord", wat);
+
+            Vehicle vehicle = record.getVehicle().get(0);
+            if (vehicle != null) {
+                String plateNo = vehicle.getPlateNumber();
+                if (plateNo != null) {
+                    Log.d("MainActivity:loadRecord", "Got vehicle plate #" + plateNo);
+                }
+            }
+
             if (deets == null) {
                 Log.e("MainActivity:loadRecord", "NO ACCIDENT DETAILS FOUND GAAAAAH!");
-
-                /*
-                String wat = gson.toJson(record, DriverSchema.class);
-                Log.d("MainActivity:loadRecord", wat);
-
-                Vehicle vehicle = record.getVehicle().get(0);
-                if (vehicle != null) {
-                    String plateNo = vehicle.getPlateNumber();
-                    if (plateNo != null) {
-                        Log.d("MainActivity:loadRecord", "Did get plate #" + plateNo);
-                        return plateNo;
-                    }
-                }
-                */
 
                 return "Got no deets?!?";
             }
@@ -109,6 +108,21 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d("MainActivity:loadRecord", "Read accident with severity: " + severity.name());
 
+            Field[] deetFields = AccidentDetails.class.getDeclaredFields();
+
+            Log.d("loadrecord", "Looking into deets...");
+
+            if (deetFields.length == 0) {
+                Log.d("loadrecord", "No fields on deets?");
+            }
+            for (Field fld : deetFields) {
+                String name = fld.getName();
+                Annotation[] annotations = fld.getDeclaredAnnotations();
+                for (Annotation annotation: annotations) {
+
+                    Log.d("MainActivity", "Details Field " + name + " has annotation " + annotation.toString());
+                }
+            }
             return severity.name();
 
         } catch (IOException e) {

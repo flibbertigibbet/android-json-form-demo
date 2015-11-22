@@ -39,6 +39,12 @@
 
 -keep class com.azavea.prs.** { *; }
 
+# keep annotation classes so they do not get obfuscated, even if not referenced directly
+-keep class org.jsonschema2pojo.annotations.** { *; }
+-keep class com.fasterxml.jackson.annotation.** { *; }
+-keep class com.google.gson.annotations.** { *; }
+-keep class javax.annotation.** { *; }
+
 # fix remaining warnings
 -keep class com.google.vending.licensing.ILicensingService { *; }
 -keep class org.w3c.dom.** { *; }
