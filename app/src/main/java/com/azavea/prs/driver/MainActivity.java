@@ -31,8 +31,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 import com.azavea.prs.driver.schemas.*;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -147,6 +153,23 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Details Field " + name + " has annotation " + annotation.toString());
                 }
             }
+
+            // let's try validation
+            ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+            Validator validator = validatorFactory.getValidator();
+
+            Set<ConstraintViolation<AccidentDetails>> errors = validator.validate(deets);
+
+            if (errors.isEmpty()) {
+                Log.d("MainActivity", "Hooray, deets is valid");
+            } else {
+                for (ConstraintViolation<AccidentDetails> error: errors) {
+                    Log.d("MainActivity", "Got constraint violation for deets:" + error.getMessage());
+                }
+            }
+
+
+
             return severity.name();
 
         } catch (IOException e) {

@@ -106,15 +106,6 @@
 
 ## GSON 2.2.4 specific rules ##
 
-# Gson uses generic type information stored in a class file when working with fields. Proguard
-# removes such information by default, so configure it to keep all of it.
-#-keepattributes Signature
-
-# For using GSON @Expose annotation
-#-keepattributes *Annotation*
-
-#-keepattributes EnclosingMethod
-
 # Gson specific classes
 -keep class sun.misc.Unsafe { *; }
 -keep class com.google.gson.stream.** { *; }
@@ -128,3 +119,38 @@
 -keep class com.fasterxml.jackson.databind.ObjectWriter {
     public ** writeValueAsString(**);
 }
+
+####### hibernate validator
+
+# ignore logging
+-dontwarn org.jboss.logging.**
+-dontwarn org.jboss.logmanager.**
+-dontwarn org.apache.log4j.**
+-dontwarn org.slf4j.**
+
+# don't have everything for these in android implementations... probably ok?
+-dontwarn java.beans.**
+-dontwarn java.lang.reflect.**
+-dontwarn java.lang.annotation.**
+-dontwarn java.lang.instrument.**
+-dontwarn java.util.Optional
+-dontwarn javax.script.**
+-dontwarn java.time.**
+-dontwarn java.awt.**
+-dontwarn com.sun.activation.viewers.**
+-dontwarn javax.activation.**
+-dontwarn javafx.beans.**
+
+-keep class java.util.** { *; }
+-keep class java.lang.** { *; }
+
+-dontwarn java.util.concurrent.**
+-dontwarn java.util.function.**
+-dontwarn java.util.Objects
+-dontwarn java.util.stream.**
+-dontwarn java.util.Set
+-dontwarn java.lang.invoke.**
+
+-dontwarn javax.annotation.**
+-dontwarn javax.tools.**
+-dontwarn org.hibernate.validator.ap.ConstraintValidationProcessor
