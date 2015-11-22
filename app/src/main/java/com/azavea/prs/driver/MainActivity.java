@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
@@ -34,6 +36,10 @@ import com.azavea.prs.driver.schemas.*;
 
 public class MainActivity extends AppCompatActivity {
 
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
+
 
     //ExampleSchema mySchema;
 
@@ -53,6 +59,24 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+
+        //View mainContent = findViewById(R.id.content_main);
+        mRecyclerView = (RecyclerView) findViewById(R.id.content_main);
+        // let layout size can change dynamically with content
+        mRecyclerView.setHasFixedSize(false);
+
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        // specify an adapter
+        String[] recordInfo = {"thing one", "thing two", "foo", "bar", "baz", "jazzy jeff",
+                "fresh prince", "stravinsky", "beethoven", "Indiana", "New Hampshire", "Ohio",
+                "gingerbread", "ice cream sandwich", "Finland", "Australia", "penguins"
+        };
+        mAdapter = new RecordAdapter(recordInfo);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
     String loadRecord() {
