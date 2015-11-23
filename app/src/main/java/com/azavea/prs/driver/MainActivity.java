@@ -17,6 +17,7 @@ import com.google.gson.stream.JsonReader;
 import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JCodeModel;
 
+import org.apache.bval.jsr303.ApacheValidationProvider;
 import org.jsonschema2pojo.*;
 import org.jsonschema2pojo.rules.RuleFactory;
 
@@ -39,6 +40,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -155,8 +157,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // let's try validation
+            /*
             ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-            Validator validator = validatorFactory.getValidator();
+
+            */
+
+            ValidatorFactory avf = Validation.buildDefaultValidatorFactory();
+            //ValidatorFactory avf =
+            //        Validation.byProvider(ApacheValidationProvider.class).configure().buildValidatorFactory();
+
+            Validator validator = avf.getValidator();
 
             Set<ConstraintViolation<AccidentDetails>> errors = validator.validate(deets);
 

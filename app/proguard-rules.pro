@@ -120,37 +120,58 @@
     public ** writeValueAsString(**);
 }
 
-####### hibernate validator
+#######
+# ignore optional bval deps
+#-dontwarn javax.xml.bind.**
+#-dontwarn org.osgi.**
+#-dontwarn org.apache.bval.xml.**
+#-dontwarn org.apache.commons.weaver.**
+#-dontwarn org.apache.bval.util.**
+#-dontwarn org.apache.commons.beanutils.**
+#-dontwarn org.apache.geronimo.**
+#-dontwarn org.apache.bval.jsr303.util.SecureActions
 
-# ignore logging
--dontwarn org.jboss.logging.**
--dontwarn org.jboss.logmanager.**
--dontwarn org.apache.log4j.**
--dontwarn org.slf4j.**
-
-# don't have everything for these in android implementations... probably ok?
+# missing stuff on android
 -dontwarn java.beans.**
--dontwarn java.lang.reflect.**
--dontwarn java.lang.annotation.**
 -dontwarn java.lang.instrument.**
--dontwarn java.util.Optional
--dontwarn javax.script.**
--dontwarn java.time.**
+-dontwarn java.lang.reflect.**
+-dontwarn java.lang.Object
+
+
+-dontwarn javax.swing.**
+#-dontwarn net.sf.cglib.**
+#-dontwarn org.osgi.**
 -dontwarn java.awt.**
--dontwarn com.sun.activation.viewers.**
+
+-dontwarn com.sun.xml.**
+-dontwarn org.jdom.**
+-dontwarn com.sun.msv.**
+-dontwarn java.xml.transform.**
+-dontwarn org.dom4j.swing.**
+
+-dontwarn org.apache.bcel.verifier.** # uses awt dialogs
+
+-dontwarn sun.misc.Unsafe
+-dontwarn java.applet.**
+-dontwarn org.slf4j.**
+-dontwarn javax.naming
+-dontwarn org.w3c.dom.**
+
+-dontwarn com.sun.org.apache.xerces.**
+-dontwarn org.apache.bval.jsr303.util.SecureActions
+-dontwarn org.apache.commons.beanutils.MappedPropertyDescriptor
+-dontwarn javax.xml.**
+-dontwarn javax.naming.**
+-dontwarn java.lang.**
+-dontwarn org.eclipse.osgi.**
+-dontwarn nu.xom.**
+-dontwarn org.apache.bval.util.**
+-dontwarn com.sun.activiation.**
+-dontwarn com.bea.xml.**
+-dontwarn org.kxml2.**
+-dontwarn org.xmlpull.**
+-dontwarn com.sun.activation.**
+-dontwarn org.apache.geronimo.osgi.**
+-dontwarn com.ctc.wstx.stax.**
 -dontwarn javax.activation.**
--dontwarn javafx.beans.**
-
--keep class java.util.** { *; }
--keep class java.lang.** { *; }
-
--dontwarn java.util.concurrent.**
--dontwarn java.util.function.**
--dontwarn java.util.Objects
--dontwarn java.util.stream.**
--dontwarn java.util.Set
--dontwarn java.lang.invoke.**
-
--dontwarn javax.annotation.**
--dontwarn javax.tools.**
--dontwarn org.hibernate.validator.ap.ConstraintValidationProcessor
+-dontwarn org.xml.sax.**
