@@ -1,6 +1,5 @@
 package com.azavea.prs.driver;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -52,6 +51,7 @@ import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import javax.validation.spi.BootstrapState;
 import javax.validation.spi.ValidationProvider;
 
 
@@ -193,8 +193,16 @@ public class MainActivity extends AppCompatActivity {
 
             ValidatorFactory validatorFactory = Validation
                     .byProvider(HibernateValidator.class)
+                    .providerResolver(new ValidationProviderResolver() {
+                        @Override
+                        public List<ValidationProvider<?>> getValidationProviders() {
+                            HibernateValidator v = new HibernateValidator();
+                            return Collections.<ValidationProvider<?>>singletonList(new HibernateValidator());
+                        }
+                    })
                     .configure()
                     .ignoreXmlConfiguration()
+                    /*
                     .messageInterpolator(new MessageInterpolator() {
                         @Override
                         public String interpolate(String messageTemplate, Context context) {
@@ -206,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                         public String interpolate(String messageTemplate, Context context, Locale locale) {
                             return interpolate(messageTemplate, context);
                         }
-                    })
+                    })*/
                     .buildValidatorFactory();
 
             Validator validator = validatorFactory.getValidator();

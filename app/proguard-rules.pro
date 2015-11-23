@@ -27,7 +27,7 @@
 -printusage unused.txt
 -printmapping mapping.txt
 
-#-dontobfuscate # comes in handy sometimes
+-dontobfuscate # comes in handy sometimes
 
 -keepattributes EnclosingMethod,Signature,*Annotation*,SourceFile,LineNumberTable,Exceptions,InnerClasses,Deprecated
 
@@ -141,6 +141,17 @@
 -keepnames class org.joda.**
 -keepnames class com.fasterxml.**
 
+-keep class com.fasterxml.jackson.databind.** { *; }
+-keep interface com.fasterxml.jackson.databind.** { *; }
+-keepclassmembers class com.fasterxml.jackson.databind.** { *; }
+
+# TODO: wat
+-dontwarn com.fasterxml.jackson.databind.**
+
+-keepnames class org.jboss.logmanager.**
+-keepnames class org.apache.log4j.**
+-keepnames class org.slf4j.**
+
 # unwanted loggers
 -dontwarn org.jboss.logmanager.**
 -dontwarn org.apache.log4j.**
@@ -151,9 +162,19 @@
 -dontwarn org.jsoup.** # optional dependency, for HTML parsing
 -dontwarn com.sun.activation.** # UI stuff in here
 -dontwarn javax.activation.** # more UI stuff
--dontwarn javax.xml.bind.** # unnecessary XML stuff
--dontwarn javax.xml.stream.** # unnecessary XML stuff
+
+# android has only partial implementations
+#-dontwarn javax.xml.bind.** # XML stuff
+#-dontwarn javax.xml.stream.** # XML stuff
 
 -dontwarn java.lang.**
 -dontwarn java.beans.**
--dontwarn org.hibernate.validator.internal.**
+#-dontwarn org.hibernate.validator.internal.**
+
+# logger deps, ugh
+-dontwarn javax.swing.**
+-dontwarn java.awt.**
+-dontwarn javax.jms.**
+-dontwarn javax.management.**
+
+-dontwarn javax.xml.namespace.QName
