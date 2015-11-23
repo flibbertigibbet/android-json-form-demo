@@ -121,15 +121,6 @@
 }
 
 #######
-# ignore optional bval deps
-#-dontwarn javax.xml.bind.**
-#-dontwarn org.osgi.**
-#-dontwarn org.apache.bval.xml.**
-#-dontwarn org.apache.commons.weaver.**
-#-dontwarn org.apache.bval.util.**
-#-dontwarn org.apache.commons.beanutils.**
-#-dontwarn org.apache.geronimo.**
-#-dontwarn org.apache.bval.jsr303.util.SecureActions
 
 # missing stuff on android
 -dontwarn java.beans.**
@@ -139,39 +130,16 @@
 
 
 -dontwarn javax.swing.**
-#-dontwarn net.sf.cglib.**
-#-dontwarn org.osgi.**
 -dontwarn java.awt.**
 
--dontwarn com.sun.xml.**
--dontwarn org.jdom.**
--dontwarn com.sun.msv.**
--dontwarn java.xml.transform.**
--dontwarn org.dom4j.swing.**
+-dontwarn org.jboss.logging.**
 
--dontwarn org.apache.bcel.verifier.** # uses awt dialogs
-
--dontwarn sun.misc.Unsafe
--dontwarn java.applet.**
--dontwarn org.slf4j.**
--dontwarn javax.naming
--dontwarn org.w3c.dom.**
-
--dontwarn com.sun.org.apache.xerces.**
--dontwarn org.apache.bval.jsr303.util.SecureActions
--dontwarn org.apache.commons.beanutils.MappedPropertyDescriptor
--dontwarn javax.xml.**
--dontwarn javax.naming.**
--dontwarn java.lang.**
--dontwarn org.eclipse.osgi.**
--dontwarn nu.xom.**
--dontwarn org.apache.bval.util.**
--dontwarn com.sun.activiation.**
--dontwarn com.bea.xml.**
--dontwarn org.kxml2.**
--dontwarn org.xmlpull.**
--dontwarn com.sun.activation.**
--dontwarn org.apache.geronimo.osgi.**
--dontwarn com.ctc.wstx.stax.**
--dontwarn javax.activation.**
--dontwarn org.xml.sax.**
+-dontwarn javax.script.**
+-dontwarn com.thoughtworks.paranamer.** # optional dependency (what does it do?)
+-dontwarn java.util.Optional
+-dontwarn java.lang.annotation.ElementType # can't find TYPE_USE ??
+-dontwarn javafx.beans.**
+-dontwarn org.jsoup.** # optional dependency, for HTML parsing
+-dontwarn java.time.**
+-dontwarn com.sun.activation.** # UI stuff in here
+-dontwarn javax.activation.** # more UI stuff

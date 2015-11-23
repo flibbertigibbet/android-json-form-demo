@@ -1,5 +1,6 @@
 package com.azavea.prs.driver;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,14 +11,14 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.azavea.prs.driver.schemas.DriverSchema;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JCodeModel;
 
-import org.apache.bval.jsr303.ApacheValidationProvider;
+import org.hibernate.validator.HibernateValidator;
+import org.hibernate.validator.HibernateValidatorFactory;
 import org.jsonschema2pojo.*;
 import org.jsonschema2pojo.rules.RuleFactory;
 
@@ -32,11 +33,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Set;
 
 import com.azavea.prs.driver.schemas.*;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -162,10 +165,41 @@ public class MainActivity extends AppCompatActivity {
 
             */
 
-            ValidatorFactory avf = Validation.buildDefaultValidatorFactory();
+            //ValidatorFactory avf = Validation.buildDefaultValidatorFactory();
             //ValidatorFactory avf =
             //        Validation.byProvider(ApacheValidationProvider.class).configure().buildValidatorFactory();
+            //Validation.byProvider(HibernateValidator.class).providerResolver(foo).configure();
 
+
+            //Validation.byProvider(HibernateValidator.class).configure();
+
+            ValidatorFactory validatorFactory = Validation
+                    .byProvider(HibernateValidator.class)
+                    .configure()
+                    .ignoreXmlConfiguration()
+                    .messageInterpolator(new MessageInterpolator() {
+                        @Override
+                        public String interpolate(String messageTemplate, Context context) {
+                            int id = ApplicationContext.getApplication().getResources().getIdentifier(messageTemplate, "string", R.class.getPackage().getName());
+                            return ApplicationContext.getApplication().getString(id);
+                        }
+
+                        @Override
+                        public String interpolate(String messageTemplate, Context context, Locale locale) {
+                            return interpolate(messageTemplate, context);
+                        }
+                    })
+                    .buildValidatorFactory();
+
+            Validator validator = validatorFactory.getValidator();
+
+            if (validator != null) {
+                Log.d("MainActivity", "Yo got a validator");
+            } else {
+                Log.d("MainActivity", "Ugh. GOT THIS FAR !!!!!!!!!!!!!!");
+            }
+
+            /*
             Validator validator = avf.getValidator();
 
             Set<ConstraintViolation<AccidentDetails>> errors = validator.validate(deets);
@@ -177,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Got constraint violation for deets:" + error.getMessage());
                 }
             }
-
+            */
 
 
             return severity.name();
