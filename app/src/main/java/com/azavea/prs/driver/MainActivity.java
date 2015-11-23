@@ -1,6 +1,7 @@
 package com.azavea.prs.driver;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,6 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
@@ -18,6 +22,7 @@ import com.sun.codemodel.CodeWriter;
 import com.sun.codemodel.JCodeModel;
 
 import org.hibernate.validator.HibernateValidator;
+import org.hibernate.validator.HibernateValidatorConfiguration;
 import org.hibernate.validator.HibernateValidatorFactory;
 import org.jsonschema2pojo.*;
 import org.jsonschema2pojo.rules.RuleFactory;
@@ -33,6 +38,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -41,8 +49,10 @@ import com.azavea.prs.driver.schemas.*;
 import javax.validation.ConstraintViolation;
 import javax.validation.MessageInterpolator;
 import javax.validation.Validation;
+import javax.validation.ValidationProviderResolver;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import javax.validation.spi.ValidationProvider;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -50,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
 
     //ExampleSchema mySchema;
@@ -88,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
         };
         mAdapter = new RecordAdapter(recordInfo);
         mRecyclerView.setAdapter(mAdapter);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     String loadRecord() {
@@ -153,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             for (Field fld : deetFields) {
                 String name = fld.getName();
                 Annotation[] annotations = fld.getDeclaredAnnotations();
-                for (Annotation annotation: annotations) {
+                for (Annotation annotation : annotations) {
 
                     Log.d("MainActivity", "Details Field " + name + " has annotation " + annotation.toString());
                 }
@@ -199,19 +217,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MainActivity", "Ugh. GOT THIS FAR !!!!!!!!!!!!!!");
             }
 
-            /*
-            Validator validator = avf.getValidator();
-
             Set<ConstraintViolation<AccidentDetails>> errors = validator.validate(deets);
 
             if (errors.isEmpty()) {
                 Log.d("MainActivity", "Hooray, deets is valid");
             } else {
-                for (ConstraintViolation<AccidentDetails> error: errors) {
+                for (ConstraintViolation<AccidentDetails> error : errors) {
                     Log.d("MainActivity", "Got constraint violation for deets:" + error.getMessage());
                 }
             }
-            */
 
 
             return severity.name();
@@ -256,4 +270,43 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.azavea.prs.driver/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.azavea.prs.driver/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
+        client.disconnect();
+    }
 }

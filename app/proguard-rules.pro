@@ -27,6 +27,8 @@
 -printusage unused.txt
 -printmapping mapping.txt
 
+#-dontobfuscate # comes in handy sometimes
+
 -keepattributes EnclosingMethod,Signature,*Annotation*,SourceFile,LineNumberTable,Exceptions,InnerClasses,Deprecated
 
 # http://proguard.sourceforge.net/manual/examples.html#beans
@@ -38,6 +40,8 @@
 -repackageclasses ''
 
 -keep class com.azavea.prs.** { *; }
+-keepclassmembers class com.azavea.prs.** { *; }
+-keepnames class com.azavea.prs.**
 
 # keep annotation classes so they do not get obfuscated, even if not referenced directly
 -keep class org.jsonschema2pojo.annotations.** { *; }
@@ -58,7 +62,6 @@
 -dontwarn org.w3c.dom.**
 -dontwarn sun.nio.cs.**
 -dontwarn javax.lang.model.**
-#-dontwarn com.google.common.**
 
 -keepclassmembers class * {
     @javax.annotation.Resource *;
@@ -120,26 +123,37 @@
     public ** writeValueAsString(**);
 }
 
-#######
+####### hibernate validator
 
-# missing stuff on android
--dontwarn java.beans.**
--dontwarn java.lang.instrument.**
--dontwarn java.lang.reflect.**
--dontwarn java.lang.Object
+# hang onto dynamic things
+# TODO: refine
+-keep class org.hibernate.** { *; }
+-keep interface org.hibernate.** { *; }
+-keepclassmembers class org.hibernate.** { *; }
+-keepnames class org.hibernate.**
 
+-keep class javax.el.** { *; }
+-keep interface javax.el.** { *; }
+-keepclassmembers class javax.el.** { *; }
 
--dontwarn javax.swing.**
--dontwarn java.awt.**
+# so obfuscation doesn't break hibernate validator
+-keepnames class javax.**
+-keepnames class org.joda.**
+-keepnames class com.fasterxml.**
 
--dontwarn org.jboss.logging.**
+# unwanted loggers
+-dontwarn org.jboss.logmanager.**
+-dontwarn org.apache.log4j.**
+-dontwarn org.slf4j.**
 
 -dontwarn javax.script.**
 -dontwarn com.thoughtworks.paranamer.** # optional dependency (what does it do?)
--dontwarn java.util.Optional
--dontwarn java.lang.annotation.ElementType # can't find TYPE_USE ??
--dontwarn javafx.beans.**
 -dontwarn org.jsoup.** # optional dependency, for HTML parsing
--dontwarn java.time.**
 -dontwarn com.sun.activation.** # UI stuff in here
 -dontwarn javax.activation.** # more UI stuff
+-dontwarn javax.xml.bind.** # unnecessary XML stuff
+-dontwarn javax.xml.stream.** # unnecessary XML stuff
+
+-dontwarn java.lang.**
+-dontwarn java.beans.**
+-dontwarn org.hibernate.validator.internal.**
