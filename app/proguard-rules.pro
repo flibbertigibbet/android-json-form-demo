@@ -27,6 +27,8 @@
 -printusage unused.txt
 -printmapping mapping.txt
 
+-dontobfuscate # comes in handy sometimes
+
 -keepattributes EnclosingMethod,Signature,*Annotation*,SourceFile,LineNumberTable,Exceptions,InnerClasses,Deprecated
 
 # http://proguard.sourceforge.net/manual/examples.html#beans
@@ -38,27 +40,27 @@
 -repackageclasses ''
 
 -keep class com.azavea.prs.** { *; }
+-keepclassmembers class com.azavea.prs.** { *; }
+-keepnames class com.azavea.prs.**
 
 # keep annotation classes so they do not get obfuscated, even if not referenced directly
 -keep class org.jsonschema2pojo.annotations.** { *; }
--keep class com.fasterxml.jackson.annotation.** { *; }
+-keep class com.fasterxml.jackson.annotation.** { public *; }
 -keep class com.google.gson.annotations.** { *; }
--keep class javax.annotation.** { *; }
+-keep class javax.annotation.** { public *; }
 
-# fix remaining warnings
 -keep class com.google.vending.licensing.ILicensingService { *; }
 -keep class org.w3c.dom.** { *; }
--keep class sun.nio.cs.** { *; }
--keep class javax.lang.model.** { *; }
+-keep class sun.nio.cs.** { public *; }
+-keep class javax.lang.model.** { public *; }
 
 # warnings re: dynamic references
--keep class libcore.icu.** { *; }
--keep class android.graphics.** { *; }
+-keep class libcore.icu.** { public *; }
+-keep class android.graphics.** { public *; }
 
 -dontwarn org.w3c.dom.**
 -dontwarn sun.nio.cs.**
 -dontwarn javax.lang.model.**
-#-dontwarn com.google.common.**
 
 -keepclassmembers class * {
     @javax.annotation.Resource *;
@@ -76,20 +78,23 @@
 
 -dontwarn org.joda.convert.**
 -dontwarn org.joda.time.**
--keep class org.joda.time.** { *; }
--keep interface org.joda.time.** { *; }
+#-keep class org.joda.time.** { public *; }
+#-keep interface org.joda.time.** { public *; }
 
 ## Joda Convert 1.6
 
--keep class org.joda.convert.** { *; }
--keep interface org.joda.convert.** { *; }
+#-keep class org.joda.convert.** { public *; }
+#-keep interface org.joda.convert.** { public *; }
 
 # support design
 
--dontwarn android.support.design.**
 -keep class android.support.design.** { *; }
 -keep interface android.support.design.** { *; }
 -keep public class android.support.design.R$* { *; }
+
+-keep public class * extends android.support.design.widget.** {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
 
 # app compat v7
 
@@ -102,15 +107,6 @@
 }
 
 ## GSON 2.2.4 specific rules ##
-
-# Gson uses generic type information stored in a class file when working with fields. Proguard
-# removes such information by default, so configure it to keep all of it.
-#-keepattributes Signature
-
-# For using GSON @Expose annotation
-#-keepattributes *Annotation*
-
-#-keepattributes EnclosingMethod
 
 # Gson specific classes
 -keep class sun.misc.Unsafe { *; }
@@ -125,3 +121,64 @@
 -keep class com.fasterxml.jackson.databind.ObjectWriter {
     public ** writeValueAsString(**);
 }
+
+####### hibernate validator
+
+# hang onto dynamic things
+# TODO: refine
+-keep class org.hibernate.validator.** { public *; }
+-keep interface org.hibernate.validator.** { public *; }
+-keepnames class org.hibernate.validator.**
+#-keepclassmembers class org.hibernate.** { *; }
+
+-keep class javax.el.** { public *; }
+-keep interface javax.el.** { public *; }
+-keepclassmembers class javax.el.** { public *; }
+
+-keep class com.sun.el.** { public *; }
+-keep interface com.sun.el.** { public *; }
+
+# keep the constraint annotation defninitions
+-keep class javax.validation.** { public *; }
+-keep interface javax.validation.** { public *; }
+-keepclassmembers class javax.validation.constraints.** { *; }
+-keepnames class javax.validation.constraints.**
+
+# so obfuscation doesn't break hibernate validator
+-keepnames class javax.**
+-keepnames class ext.javax.**
+-keepnames class org.joda.**
+-keepnames class com.fasterxml.**
+-keepnames class com.sun.el.**
+
+-keep class com.fasterxml.jackson.databind.** { public *; }
+-keep interface com.fasterxml.jackson.databind.** { public *; }
+
+# TODO: wat
+-dontwarn com.fasterxml.jackson.databind.**
+
+-keepnames class org.jboss.logmanager.**
+-keepnames class org.apache.log4j.**
+-keepnames class org.slf4j.**
+
+# loggers
+-dontwarn org.jboss.logmanager.**
+-dontwarn org.apache.log4j.**
+-dontwarn org.slf4j.**
+
+-dontwarn javax.script.**
+-dontwarn com.thoughtworks.paranamer.** # optional dependency (what does it do?)
+-dontwarn org.jsoup.** # optional dependency, for HTML parsing
+-dontwarn com.sun.activation.** # UI stuff in here
+-dontwarn javax.activation.** # more UI stuff
+
+-dontwarn java.lang.**
+-dontwarn java.beans.**
+
+# logger deps, ugh
+-dontwarn javax.swing.**
+-dontwarn java.awt.**
+-dontwarn javax.jms.**
+-dontwarn javax.management.**
+
+-dontwarn javax.xml.namespace.QName
