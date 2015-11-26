@@ -45,19 +45,18 @@
 
 # keep annotation classes so they do not get obfuscated, even if not referenced directly
 -keep class org.jsonschema2pojo.annotations.** { *; }
--keep class com.fasterxml.jackson.annotation.** { *; }
+-keep class com.fasterxml.jackson.annotation.** { public *; }
 -keep class com.google.gson.annotations.** { *; }
--keep class javax.annotation.** { *; }
+-keep class javax.annotation.** { public *; }
 
-# fix remaining warnings
 -keep class com.google.vending.licensing.ILicensingService { *; }
 -keep class org.w3c.dom.** { *; }
--keep class sun.nio.cs.** { *; }
--keep class javax.lang.model.** { *; }
+-keep class sun.nio.cs.** { public *; }
+-keep class javax.lang.model.** { public *; }
 
 # warnings re: dynamic references
--keep class libcore.icu.** { *; }
--keep class android.graphics.** { *; }
+-keep class libcore.icu.** { public *; }
+-keep class android.graphics.** { public *; }
 
 -dontwarn org.w3c.dom.**
 -dontwarn sun.nio.cs.**
@@ -79,13 +78,13 @@
 
 -dontwarn org.joda.convert.**
 -dontwarn org.joda.time.**
--keep class org.joda.time.** { *; }
--keep interface org.joda.time.** { *; }
+#-keep class org.joda.time.** { public *; }
+#-keep interface org.joda.time.** { public *; }
 
 ## Joda Convert 1.6
 
--keep class org.joda.convert.** { *; }
--keep interface org.joda.convert.** { *; }
+#-keep class org.joda.convert.** { public *; }
+#-keep interface org.joda.convert.** { public *; }
 
 # support design
 
@@ -127,23 +126,33 @@
 
 # hang onto dynamic things
 # TODO: refine
--keep class org.hibernate.** { *; }
--keep interface org.hibernate.** { *; }
--keepclassmembers class org.hibernate.** { *; }
--keepnames class org.hibernate.**
+-keep class org.hibernate.validator.** { public *; }
+-keep interface org.hibernate.validator.** { public *; }
+-keepnames class org.hibernate.validator.**
+#-keepclassmembers class org.hibernate.** { *; }
 
--keep class javax.el.** { *; }
--keep interface javax.el.** { *; }
--keepclassmembers class javax.el.** { *; }
+-keep class javax.el.** { public *; }
+-keep interface javax.el.** { public *; }
+-keepclassmembers class javax.el.** { public *; }
+
+-keep class com.sun.el.** { public *; }
+-keep interface com.sun.el.** { public *; }
+
+# keep the constraint annotation defninitions
+-keep class javax.validation.** { public *; }
+-keep interface javax.validation.** { public *; }
+-keepclassmembers class javax.validation.constraints.** { *; }
+-keepnames class javax.validation.constraints.**
 
 # so obfuscation doesn't break hibernate validator
 -keepnames class javax.**
+-keepnames class ext.javax.**
 -keepnames class org.joda.**
 -keepnames class com.fasterxml.**
+-keepnames class com.sun.el.**
 
--keep class com.fasterxml.jackson.databind.** { *; }
--keep interface com.fasterxml.jackson.databind.** { *; }
--keepclassmembers class com.fasterxml.jackson.databind.** { *; }
+-keep class com.fasterxml.jackson.databind.** { public *; }
+-keep interface com.fasterxml.jackson.databind.** { public *; }
 
 # TODO: wat
 -dontwarn com.fasterxml.jackson.databind.**
@@ -152,7 +161,7 @@
 -keepnames class org.apache.log4j.**
 -keepnames class org.slf4j.**
 
-# unwanted loggers
+# loggers
 -dontwarn org.jboss.logmanager.**
 -dontwarn org.apache.log4j.**
 -dontwarn org.slf4j.**
@@ -163,13 +172,8 @@
 -dontwarn com.sun.activation.** # UI stuff in here
 -dontwarn javax.activation.** # more UI stuff
 
-# android has only partial implementations
-#-dontwarn javax.xml.bind.** # XML stuff
-#-dontwarn javax.xml.stream.** # XML stuff
-
 -dontwarn java.lang.**
 -dontwarn java.beans.**
-#-dontwarn org.hibernate.validator.internal.**
 
 # logger deps, ugh
 -dontwarn javax.swing.**

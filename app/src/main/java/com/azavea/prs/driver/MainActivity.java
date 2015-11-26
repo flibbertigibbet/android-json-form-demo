@@ -51,6 +51,7 @@ import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import javax.validation.constraints.NotNull;
 import javax.validation.spi.BootstrapState;
 import javax.validation.spi.ValidationProvider;
 
@@ -206,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
                     .messageInterpolator(new MessageInterpolator() {
                         @Override
                         public String interpolate(String messageTemplate, Context context) {
+                            Log.d("MainActivity", "interpolating message template " + messageTemplate);
                             int id = ApplicationContext.getApplication().getResources().getIdentifier(messageTemplate, "string", R.class.getPackage().getName());
                             return ApplicationContext.getApplication().getString(id);
                         }
@@ -214,13 +216,14 @@ public class MainActivity extends AppCompatActivity {
                         public String interpolate(String messageTemplate, Context context, Locale locale) {
                             return interpolate(messageTemplate, context);
                         }
-                    })*/
+                    })
+                    */
                     .buildValidatorFactory();
 
             Validator validator = validatorFactory.getValidator();
 
             if (validator != null) {
-                Log.d("MainActivity", "Yo got a validator");
+                Log.d("MainActivity", "Yo got a validator. WHEEEEEEEEEEEEEE");
             } else {
                 Log.d("MainActivity", "Ugh. GOT THIS FAR !!!!!!!!!!!!!!");
             }
@@ -229,6 +232,22 @@ public class MainActivity extends AppCompatActivity {
 
             if (errors.isEmpty()) {
                 Log.d("MainActivity", "Hooray, deets is valid");
+            } else {
+                for (ConstraintViolation<AccidentDetails> error : errors) {
+                    Log.d("MainActivity", "Got constraint violation for deets:" + error.getMessage());
+                }
+            }
+
+            Log.d("MainActivity", "Let's do that again");
+
+            // introduce error
+            deets.setSeverity(null);
+            deets.setLocalId("IAMNOTAVALIDID");
+
+            errors = validator.validate(deets);
+
+            if (errors.isEmpty()) {
+                Log.d("MainActivity", "Deets is still valid?!? should not be...........");
             } else {
                 for (ConstraintViolation<AccidentDetails> error : errors) {
                     Log.d("MainActivity", "Got constraint violation for deets:" + error.getMessage());
