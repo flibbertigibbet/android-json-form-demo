@@ -1,5 +1,6 @@
 package com.azavea.prs.driver;
 
+import android.app.ActivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -37,6 +38,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -77,15 +79,35 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /////////////////////////////////////////////////////////
+        Runtime rt = Runtime.getRuntime();
+        long maxMemory = rt.maxMemory();
+        // total bytes of heap allowed to use before hard error
+        Log.v("onCreate", "maxMemory:" + Long.toString(maxMemory));
+        Log.v("onCreate", "total memory: " + Long.toString(rt.totalMemory()));
+        Log.v("onCreate", "free memory: " + Long.toString(rt.freeMemory()));
+
+        //for HTC Incredible (1st gen)
+        //maxMemory:33554432
+        //memoryClass:32
+
+        ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+        int memoryClass = am.getMemoryClass();
+        // approx. mb of heap should use to respect device limitations
+        Log.v("onCreate", "memoryClass:" + Integer.toString(memoryClass));
+
+        ////////////////////////////////////////////////////////
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String response = loadRecord();
-                Snackbar.make(view, response, Snackbar.LENGTH_LONG)
+                Snackbar.make(view, response, Snackbar.LENGTH_SHORT)
                         .setAction("Action", null).show();
             }
         });
+
 
 
         //View mainContent = findViewById(R.id.content_main);
@@ -135,14 +157,20 @@ public class MainActivity extends AppCompatActivity {
                 return "Got nuthin";
             }
 
-            AccidentDetails deets = record.getAccidentDetails();
+            //AccidentDetails deets = record.getAccidentDetails();
+            final AccidentDetails deets = record.AccidentDetails;
 
-            String wat = gson.toJson(record, DriverSchema.class);
-            Log.d("MainActivity:loadRecord", wat);
+            //String wat = gson.toJson(record, DriverSchema.class);
+            //Log.d("MainActivity:loadRecord", wat);
 
-            Vehicle vehicle = record.getVehicle().get(0);
+            //Vehicle vehicle = record.getVehicle().get(0);
+
+            final Vehicle vehicle = record.Vehicle.get(0);
+
             if (vehicle != null) {
-                String plateNo = vehicle.getPlateNumber();
+                //String plateNo = vehicle.getPlateNumber();
+                String plateNo = vehicle.PlateNumber;
+
                 if (plateNo != null) {
                     Log.d("MainActivity:loadRecord", "Got vehicle plate #" + plateNo);
                 }
@@ -154,14 +182,16 @@ public class MainActivity extends AppCompatActivity {
                 return "Got no deets?!?";
             }
 
-            AccidentDetails.Severity severity = deets.getSeverity();
+            //AccidentDetails.Severity severity = deets.getSeverity();
+            String severity = deets.Severity.name();
 
             if (severity == null) {
                 Log.e("MainActivity:loadRecord", "NO SEVERITY FOUND GAAAAAH!");
                 return "Got no severity?!?";
             }
-            Log.d("MainActivity:loadRecord", "Read accident with severity: " + severity.name());
+            Log.d("MainActivity:loadRecord", "Read accident with severity: " + severity);
 
+            /*
             Field[] deetFields = AccidentDetails.class.getDeclaredFields();
 
             Log.d("loadrecord", "Looking into deets...");
@@ -177,85 +207,58 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MainActivity", "Details Field " + name + " has annotation " + annotation.toString());
                 }
             }
-
-            // let's try validation
-            /*
-            ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-
             */
 
-            //ValidatorFactory avf = Validation.buildDefaultValidatorFactory();
-            //ValidatorFactory avf =
-            //        Validation.byProvider(ApacheValidationProvider.class).configure().buildValidatorFactory();
-            //Validation.byProvider(HibernateValidator.class).providerResolver(foo).configure();
+            final ValidationTask.ValidationCallbackListener listener3 = new ValidationTask.ValidationCallbackListener() {
+                @Override
+                public void callback(boolean haveErrors) {
+                    String response = "YAY";
+                    if (haveErrors) {
+                        response = "BOO";
+                    }
 
-
-            //Validation.byProvider(HibernateValidator.class).configure();
-
-            ValidatorFactory validatorFactory = Validation
-                    .byProvider(HibernateValidator.class)
-                    .providerResolver(new ValidationProviderResolver() {
-                        @Override
-                        public List<ValidationProvider<?>> getValidationProviders() {
-                            HibernateValidator v = new HibernateValidator();
-                            return Collections.<ValidationProvider<?>>singletonList(new HibernateValidator());
-                        }
-                    })
-                    .configure()
-                    .ignoreXmlConfiguration()
-                    /*
-                    .messageInterpolator(new MessageInterpolator() {
-                        @Override
-                        public String interpolate(String messageTemplate, Context context) {
-                            Log.d("MainActivity", "interpolating message template " + messageTemplate);
-                            int id = ApplicationContext.getApplication().getResources().getIdentifier(messageTemplate, "string", R.class.getPackage().getName());
-                            return ApplicationContext.getApplication().getString(id);
-                        }
-
-                        @Override
-                        public String interpolate(String messageTemplate, Context context, Locale locale) {
-                            return interpolate(messageTemplate, context);
-                        }
-                    })
-                    */
-                    .buildValidatorFactory();
-
-            Validator validator = validatorFactory.getValidator();
-
-            if (validator != null) {
-                Log.d("MainActivity", "Yo got a validator. WHEEEEEEEEEEEEEE");
-            } else {
-                Log.d("MainActivity", "Ugh. GOT THIS FAR !!!!!!!!!!!!!!");
-            }
-
-            Set<ConstraintViolation<AccidentDetails>> errors = validator.validate(deets);
-
-            if (errors.isEmpty()) {
-                Log.d("MainActivity", "Hooray, deets is valid");
-            } else {
-                for (ConstraintViolation<AccidentDetails> error : errors) {
-                    Log.d("MainActivity", "Got constraint violation for deets:" + error.getMessage());
+                    Snackbar.make(findViewById(R.id.fab), response, Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
                 }
-            }
+            };
 
-            Log.d("MainActivity", "Let's do that again");
+            final ValidationTask.ValidationCallbackListener listener2 = new ValidationTask.ValidationCallbackListener() {
+                @Override
+                public void callback(boolean haveErrors) {
+                    String response = "YAY";
+                    if (haveErrors) {
+                        response = "BOO";
+                    }
 
-            // introduce error
-            deets.setSeverity(null);
-            deets.setLocalId("IAMNOTAVALIDID");
+                    Snackbar.make(findViewById(R.id.fab), response, Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
 
-            errors = validator.validate(deets);
-
-            if (errors.isEmpty()) {
-                Log.d("MainActivity", "Deets is still valid?!? should not be...........");
-            } else {
-                for (ConstraintViolation<AccidentDetails> error : errors) {
-                    Log.d("MainActivity", "Got constraint violation for deets:" + error.getMessage());
+                    new ValidationTask<Vehicle>(listener3).execute(vehicle);
                 }
-            }
+            };
 
+            ValidationTask.ValidationCallbackListener listener1 = new ValidationTask.ValidationCallbackListener() {
+                @Override
+                public void callback(boolean haveErrors) {
+                    String response = "YAY";
+                    if (haveErrors) {
+                        response = "BOO";
+                    }
 
-            return severity.name();
+                    Snackbar.make(findViewById(R.id.fab), response, Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+
+                    // introduce error
+                    deets.LocalId = "IAMNOTAVALIDID";
+                    new ValidationTask<AccidentDetails>(listener2).execute(deets);
+                }
+            };
+
+            //new ValidationTask<DriverSchema>(listener).execute(record);
+
+            new ValidationTask<AccidentDetails>(listener1).execute(deets);
+
+            return severity;
 
         } catch (IOException e) {
             e.printStackTrace();

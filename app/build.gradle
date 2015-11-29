@@ -144,23 +144,19 @@ dependencies {
 
     // missing on android; use jarjar to include on javax
 
-    //jarjar 'com.sun.xml.fastinfoset:FastInfoset:1.2.12'
-    //jarjar 'com.sun.istack:istack-commons-runtime:2.16'
     jarjar 'javax.xml.bind:jaxb-api:2.2.7'
-    //jarjar 'com.sun.xml.bind:jaxb-impl:2.2.7'
-    //jarjar 'com.sun.xml.bind:jaxb-core:2.2.7'
     jarjar 'javax.xml.stream:stax-api:1.0-2'
-    //jarjar 'stax:stax:1.2.0'
     jarjar 'com.sun.el:el-ri:1.0' // for message interpolator (could remove if use our own)
 
     // validator lib
-    jarjar ('org.hibernate:hibernate-validator:5.1.3.Final') {
+    jarjar ('com.github.flibbertigibbet:hibernate-validator-android:android-0.1.5') {
         exclude module: 'test-utils'
         //exclude module: 'cdi'
         exclude module: 'tck-runner'
         exclude module: 'intergration'
         exclude module: 'annotation-processor'
         exclude module: 'performance'
+        exclude module: 'distribution'
 
         exclude group: 'javax.validation', module: 'validation-api'
     }
@@ -168,8 +164,8 @@ dependencies {
     // validation deps
     jarjar 'com.fasterxml:classmate:1.0.0'
     jarjar 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
-    jarjar 'javax.el:javax.el-api:2.2.4'
-    jarjar 'org.glassfish.web:javax.el:2.2.4'
+    jarjar 'javax.el:javax.el-api:2.2.5'
+    jarjar 'org.glassfish.web:javax.el:2.2.5'
     jarjar 'javax.enterprise:cdi-api:1.2'
     jarjar 'javax.xml.bind:activation:1.0.2'
 
@@ -223,6 +219,11 @@ jsonSchema2Pojo {
 
     // Whether to include a toString method in generated Java types.
     includeToString = true
+
+    ////////////////////
+    includeAccessors = false
+    includeAdditionalProperties = false
+    /////////////////////
 
     // The style of annotations to use in the generated Java types. Supported values:
     //  - jackson (alias of jackson2)
@@ -279,7 +280,7 @@ jsonSchema2Pojo {
     initializeCollections = true
 
     // **EXPERIMENTAL** Whether to make the generated types Parcelable for Android
-    // parcelable = false
+    parcelable = false
 }
 
 jarjar {
